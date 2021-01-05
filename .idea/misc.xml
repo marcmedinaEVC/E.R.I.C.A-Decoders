@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectResources">
+    <resource url="./" location="$PROJECT_DIR$/S2021m-2008/bxfschema.xsd" />
+    <resource url="http://www.atsc.org/XMLSchemas/pmcp/2007/3.1" location="$PROJECT_DIR$" />
+    <xml-schema-version>XMLSchema_1_1</xml-schema-version>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (Ericaaaa)" project-jdk-type="Python SDK" />
+</project>
