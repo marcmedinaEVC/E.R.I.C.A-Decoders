@@ -89,18 +89,20 @@ def decoder_date_year_first():
 
 def decoder_nevion_ping_robot():
     try:
-        with open(
-                'G:/My Drive/Centralization - Nevion Alarm Logs/nevion ping logs' + decoder_date_and_time_american_style() + '.csv',
-                'w') as ping_log:
-            ping_list = []
+        with open('nevion ping logs.csv', 'w')as ping_log:
+            ping_log.write(str(decoder_date()) + '\n')
+            r = []
             for control_ip in nevion_control_ips:
-                print(decoder_name(control_ip) + str(ping(control_ip, count=4, verbose=True)))
-                ping_log.write(str(ping(control_ip, count=4, verbose=True)))
-                print('Nevion Allocated to: ' + decoder_name(control_ip) + '\n')
-                ping_log.write('Nevion Allocated to: ' + str(decoder_name(control_ip)) + '\n')
-                pings = str(ping(control_ip))
-                ping_list.append(pings)
-            return ping_list
+                print(ping(control_ip, count=4, verbose=True))
+                print('Nevion Allocated to: ' + decoder_name(control_ip))
+                x = ping(control_ip)
+                print(x)
+                ping_log.write(str(ping(control_ip, count=1, verbose=True)))
+                h = str(ping(control_ip))
+                r.append(h)
+                pings = r
+
+                return pings
     except TimeoutError as error:
         print(error)
         pass
@@ -113,19 +115,20 @@ def decoder_email_alert_notification(sender_email, receiver_email, subject, emai
         message["From"] = sender_email
         message["To"] = receiver_email
         # write the plain text part
-        message_text = '''
-        ERICA - Automation Systems - Alert! (Test)'''
-
+        message_text = """
+        ERICA - Automation Systems - Alert! (Test)
+        """
         # write the HTML part
-        email_message_html =''''<html>
-          <body>
-            <p>Hi,<br>
-               Bitcentral Needs Your Attention</p>
-            <p><a href="https://10.116.16.54/BitcentralWebMonitoring">Bitcentral Web Monitoring Website</a></p>
-            <p> Feel free to <strong>email TOC</strong> at toc@entravision.com for help.</p>
-          </body>
-        </html>
-       '''
+        # message_html = """\
+        # <html>
+        #   <body>
+        #     <p>Hi,<br>
+        #        Bitcentral Needs Your Attention</p>
+        #     <p><a href="https://10.116.16.54/BitcentralWebMonitoring">Bitcentral Web Monitoring Website</a></p>
+        #     <p> Feel free to <strong>email TOC</strong> at toc@entravision.com for help.</p>
+        #   </body>
+        # </html>
+        # """
         # convert both parts to MIMEText objects and add them to the MIMEMultipart message
         message_text = MIMEText(message_text, "plain")
         email_message_html = MIMEText(email_message_html, "html")
@@ -137,7 +140,11 @@ def decoder_email_alert_notification(sender_email, receiver_email, subject, emai
         print('Sent')
     except TimeoutError as error:
         print(error)
-    return print('Sent')
+    return
+
+
+# decoder_email_alert_notification('test@entravision.com', 'mmedina@entravision.com', 'test', 'test')
+# exit()
 
 
 def decoder_lock_status(control_ip):
@@ -223,7 +230,6 @@ def decoder_get_name_and_lock_status():
         return f.close()
 
 
-
 def decoder_last_50_alarms(control_ip):
     decoders = []
     for control_ip in nevion_control_ips:
@@ -269,7 +275,6 @@ def decoder_last_100_alarms_line_output():
                 f.write(alarm_log_head + '\n')
                 for line in data:
                     f.write(name + ',' + line.strip() + '\n')
-
             f.close()
             return print(os.listdir('G:/My Drive/Centralization - Nevion Alarm Logs/'))
     except TimeoutError as e:
@@ -277,10 +282,93 @@ def decoder_last_100_alarms_line_output():
         pass
 
 
+def decoder_last_100_alarms_line_output_no_headers():
+    try:
+        method = 'http://'
+        txp_call = '/get_alarm_log?&header=true&delimiter=,&offset=0&limit=100'
+        with open('G:/My Drive/Centralization - Nevion Alarm Logs/Nevion Alarm Logs' + str(
+                decoder_date_and_time_american_style()) + ' .csv', 'w') as f:
+            for control_ip in nevion_control_ips:
+                req = requests.get(method + control_ip + txp_call)
+                data = req.iter_lines(decode_unicode=True)
+                name = decoder_name(control_ip)
+                for line in data:
+                    f.write(name + ',' + line.strip() + '\n')
+            f.close()
+            return print(os.listdir('G:/My Drive/Centralization - Nevion Alarm Logs/'))
+    except TimeoutError as e:
+        print(e)
+        pass
+
+
+def decoder_email_alert_notification_II(sender_email, receiver_email, subject, email_message_html):
+    try:
+        message = MIMEMultipart("alternative")
+        message["Subject"] = subject
+        message["From"] = sender_email
+        message["To"] = receiver_email
+        # write the plain text part
+        message_text = """
+        ERICA - Automation Systems - Alert! (Test)
+        """
+        # write the HTML part
+        # message_html = """\
+        # <html>
+        #   <body>
+        #     <p>Hi,<br>
+        #        Bitcentral Needs Your Attention</p>
+        #     <p><a href="https://10.116.16.54/BitcentralWebMonitoring">Bitcentral Web Monitoring Website</a></p>
+        #     <p> Feel free to <strong>email TOC</strong> at toc@entravision.com for help.</p>
+        #   </body>
+        # </html>
+        # """
+        # convert both parts to MIMEText objects and add them to the MIMEMultipart message
+        message_text = MIMEText(message_text, "plain")
+        email_message_html = MIMEText(email_message_html, "html")
+        message.attach(message_text)
+        message.attach(email_message_html)
+        # send your email
+        with smtplib.SMTP("172.16.5.9", 25) as server:
+            server.sendmail(sender_email, receiver_email, message.as_string())
+        print('Sent')
+    except TimeoutError as error:
+        print(error)
+    return
+
+
 def cloud_alarm_bot():
-    decoder_last_100_alarms_line_output()
-    return print('Complete'), decoder_email_alert_notification('mmedina@entravision.com', 'mmedina@entravision.com',
-                                                               'Nevion Alarm Bot', ' ')
+    decoder_last_100_alarms_line_output_no_headers()
+    return decoder_email_alert_notification('E.R.I.C.A. - Decoders@entravision.com', 'mmedina@entravision.com',
+                                            'Nevion Alarm Summary - E.R.I.C.A | Decoders', email_message_html=None)
+
+
+def prep_alarm_log_csv():
+    method = 'http://'
+    txp_call = '/get_alarm_log?&header=true&delimiter=,&offset=0&limit=100'
+    with open('G:/My Drive/Centralization - Nevion Alarm Logs/Nevion Alarm Logs' + str(
+            decoder_date_and_time_american_style()) + ' .csv', 'w') as f:
+        for control_ip in nevion_control_ips:
+            req = requests.get(method + control_ip + txp_call)
+            data = req.iter_lines(decode_unicode=True)
+            name = decoder_name(control_ip)
+            for line in data:
+                f.write(name + ',' + line.strip() + '\n')
+        f.close()
+    log = 'G:/My Drive/Centralization - Nevion Alarm Logs/Nevion Alarm Logs.csv'
+    email_message_html = []
+    panda = pd.read_csv(log, header=0, usecols=[0, 1, 2, 3, 4, 5, 9, 13])
+    for index, row in panda.iterrows():
+        print(row.head())
+        email_message_html.append(row.head())
+    email_body_message = str(email_message_html)
+    return decoder_email_alert_notification('Decoders@entravision.com',
+                                            'mmedina@entravision.com',
+                                            'Nevion Alarm Logs - Critical',
+                                            'test')
+
+
+prep_alarm_log_csv()
+exit()
 
 
 def decoder_all_alarms(control_ip):
@@ -296,15 +384,14 @@ def decoder_all_alarms(control_ip):
         pass
 
 
-def decoder_generate_all_alarms_individual_csv_file(control_ip, decoder_name_call_letters):
-    ini_path = 'D:/ERICA Data/Data/Decoders/Nevions TVG425 Alarms/'
+def decoder_generate_all_alarms_individual_csv_file(control_ip):
+    ini_path = 'G:/My Drive/Centralization - Nevion Alarm Logs/'
     date = str(decoder_date())
-    print(decoder_name_call_letters)
-    with open(ini_path + str(decoder_name_call_letters) + '_Nevion_Alarm_log_' + date + '.csv',
+    with open(ini_path + str(decoder_name(control_ip)) + '_Nevion_Alarm_log_' + date + '.csv',
               'w') as log:
         try:
             method = 'http://'
-            txp_call = '/get_alarm_log?&header=true&delimiter=,&offset=0&limit=200'
+            txp_call = '/get_alarm_log?&header=true&delimiter=,&offset=0&limit=1000'
             req = requests.get(method + control_ip + txp_call)
             log.write(req.text)
             log.close()
@@ -408,4 +495,10 @@ def decoders_analyze_with_pandas():
     return decoder_get_name_and_lock_status()
 
 
+def get_full_logs():
+    for control_ip in nevion_control_ips:
+        decoder_generate_all_alarms_individual_csv_file(control_ip)
+    return
 
+
+get_full_logs()

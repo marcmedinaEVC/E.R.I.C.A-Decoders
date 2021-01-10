@@ -339,6 +339,9 @@ def decoder_nevion_alarms_stdout():
         return f.close()
 
 
+decoder_nevion_alarms_stdout()
+
+
 def decoder_analyze_nevions(control_ip):
     ini_path = 'D:/ERICA Data/Data/Decoders/Nevions TVG425 Alarms/'
     # nevion_lock_status = decoder_lock_status(control_ip)
@@ -408,4 +411,4 @@ def decoders_analyze_with_pandas():
     return decoder_get_name_and_lock_status()
 
 
-
+decoders_analyze_with_pandas()
